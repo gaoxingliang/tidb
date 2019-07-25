@@ -201,6 +201,7 @@ func (s *testPlanSuite) TestPredicatePushDown(c *C) {
 		},
 	}
 	for ith, ca := range tests {
+		// tests
 		comment := Commentf("for %s", ca.sql)
 		stmt, err := s.ParseOneStmt(ca.sql, "", "")
 		c.Assert(err, IsNil, comment)
