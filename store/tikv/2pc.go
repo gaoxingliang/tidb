@@ -912,11 +912,11 @@ func (c *twoPhaseCommitter) execute(ctx context.Context) error {
 		return errors.Trace(err)
 	}
 
-	failpoint.Inject("tmpMaxTxnTime", func(val failpoint.Value) {
+	if val, ok := failpoint.Eval(_curpkg_("tmpMaxTxnTime")); ok {
 		if tmpMaxTxnTime := uint64(val.(int)); tmpMaxTxnTime > 0 {
 			c.maxTxnTimeUse = tmpMaxTxnTime
 		}
-	})
+	}
 
 	if c.store.oracle.IsExpired(c.startTS, c.maxTxnTimeUse) {
 		err = errors.Errorf("conn %d txn takes too much time, txnStartTS: %d, comm: %d",

@@ -75,24 +75,24 @@ func (s *RegionRequestSender) SendReq(bo *Backoffer, req *tikvrpc.Request, regio
 
 // SendReqCtx sends a request to tikv server and return response and RPCCtx of this RPC.
 func (s *RegionRequestSender) SendReqCtx(bo *Backoffer, req *tikvrpc.Request, regionID RegionVerID, timeout time.Duration) (*tikvrpc.Response, *RPCContext, error) {
-	failpoint.Inject("tikvStoreSendReqResult", func(val failpoint.Value) {
+	if val, ok := failpoint.Eval(_curpkg_("tikvStoreSendReqResult")); ok {
 		switch val.(string) {
 		case "timeout":
-			failpoint.Return(nil, nil, errors.New("timeout"))
+			return nil, nil, errors.New("timeout")
 		case "GCNotLeader":
 			if req.Type == tikvrpc.CmdGC {
-				failpoint.Return(&tikvrpc.Response{
+				return &tikvrpc.Response{
 					Resp: &kvrpcpb.GCResponse{RegionError: &errorpb.Error{NotLeader: &errorpb.NotLeader{}}},
-				}, nil, nil)
+				}, nil, nil
 			}
 		case "GCServerIsBusy":
 			if req.Type == tikvrpc.CmdGC {
-				failpoint.Return(&tikvrpc.Response{
+				return &tikvrpc.Response{
 					Resp: &kvrpcpb.GCResponse{RegionError: &errorpb.Error{ServerIsBusy: &errorpb.ServerIsBusy{}}},
-				}, nil, nil)
+				}, nil, nil
 			}
 		}
-	})
+	}
 
 	var replicaRead kv.ReplicaReadType
 	if req.ReplicaRead {

@@ -480,8 +480,9 @@ func chooseLeaseTime(t, max time.Duration) time.Duration {
 
 // runDDLJob runs a DDL job. It returns the current schema version in this transaction and the error.
 func (w *worker) runDDLJob(d *ddlCtx, t *meta.Meta, job *model.Job) (ver int64, err error) {
-	// Mock for run ddl job panic.
-	failpoint.Inject("mockPanicInRunDDLJob", func(val failpoint.Value) {})
+	failpoint.
+		// Mock for run ddl job panic.
+		Eval(_curpkg_("mockPanicInRunDDLJob"))
 
 	logutil.Logger(w.logCtx).Info("[ddl] run DDL job", zap.String("job", job.String()))
 	timeStart := time.Now()

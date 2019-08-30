@@ -36,11 +36,11 @@ func (s *columnPruner) optimize(ctx context.Context, lp LogicalPlan) (LogicalPla
 }
 
 func getUsedList(usedCols []*expression.Column, schema *expression.Schema) ([]bool, error) {
-	failpoint.Inject("enableGetUsedListErr", func(val failpoint.Value) {
+	if val, ok := failpoint.Eval(_curpkg_("enableGetUsedListErr")); ok {
 		if val.(bool) {
-			failpoint.Return(nil, errors.New("getUsedList failed, triggered by gofail enableGetUsedListErr"))
+			return nil, errors.New("getUsedList failed, triggered by gofail enableGetUsedListErr")
 		}
-	})
+	}
 
 	used := make([]bool, schema.Len())
 	for _, col := range usedCols {

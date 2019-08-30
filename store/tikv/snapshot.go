@@ -326,12 +326,12 @@ func extractLockFromKeyErr(keyErr *pb.KeyError) (*Lock, error) {
 }
 
 func extractKeyErr(keyErr *pb.KeyError) error {
-	failpoint.Inject("ErrMockRetryableOnly", func(val failpoint.Value) {
+	if val, ok := failpoint.Eval(_curpkg_("ErrMockRetryableOnly")); ok {
 		if val.(bool) {
 			keyErr.Conflict = nil
 			keyErr.Retryable = "mock retryable error"
 		}
-	})
+	}
 
 	if keyErr.Conflict != nil {
 		return newWriteConflictError(keyErr.Conflict)

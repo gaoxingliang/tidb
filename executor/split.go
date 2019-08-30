@@ -296,11 +296,11 @@ func (e *SplitTableRegionExec) splitTableRegion(ctx context.Context) error {
 	}
 	regionIDs := make([]uint64, 0, len(splitKeys))
 	for _, key := range splitKeys {
-		failpoint.Inject("mockSplitRegionTimeout", func(val failpoint.Value) {
+		if val, ok := failpoint.Eval(_curpkg_("mockSplitRegionTimeout")); ok {
 			if val.(bool) {
 				time.Sleep(time.Second*1 + time.Millisecond*10)
 			}
-		})
+		}
 		if isCtxDone(ctxWithTimeout) {
 			break
 		}
